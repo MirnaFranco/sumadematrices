@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Suma de Matrices</title>
+    <script defer src="script.js"></script>
+</head>
+<body>
+    <h1>Suma de Matrices</h1>
+    <label>Filas: <input type="number" id="rows" min="1" value="2"></label>
+    <label>Columnas: <input type="number" id="cols" min="1" value="2"></label>
+    <button onclick="generateMatrixInputs()">Generar Matrices</button>
+    <div id="matrices"></div>
+    <button onclick="sumMatrices()">Sumar Matrices</button>
+    <h2>Matriz Resultante</h2>
+    <div id="result"></div>
+
+    <script>
+        function generateMatrixInputs() {
+            const rows = parseInt(document.getElementById("rows").value);
+            const cols = parseInt(document.getElementById("cols").value);
+            const container = document.getElementById("matrices");
+            container.innerHTML = "";
+            
+            ["Matriz 1", "Matriz 2"].forEach((title, index) => {
+                const div = document.createElement("div");
+                div.innerHTML = `<h3>${title}</h3>`;
+                for (let i = 0; i < rows; i++) {
+                    const rowDiv = document.createElement("div");
+                    for (let j = 0; j < cols; j++) {
+                        const input = document.createElement("input");
+                        input.type = "number";
+                        input.classList.add("matrix-input");
+                        input.setAttribute("data-matrix", index);
+                        input.setAttribute("data-row", i);
+                        input.setAttribute("data-col", j);
+                        rowDiv.appendChild(input);
+                    }
+                    div.appendChild(rowDiv);
+                }
+                container.appendChild(div);
+            });
+        }
+
+        function sumMatrices() {
+            const rows = parseInt(document.getElementById("rows").value);
+            const cols = parseInt(document.getElementById("cols").value);
+            let matrix1 = Array.from({ length: rows }, () => Array(cols).fill(0));
+            let matrix2 = Array.from({ length: rows }, () => Array(cols).fill(0));
+
+            document.querySelectorAll(".matrix-input").forEach(input => {
+                const matrix = input.getAttribute("data-matrix");
+                const row = parseInt(input.getAttribute("data-row"));
+                const col = parseInt(input.getAttribute("data-col"));
+                if (matrix == 0) {
+                    matrix1[row][col] = parseFloat(input.value) || 0;
+                } else {
+                    matrix2[row][col] = parseFloat(input.value) || 0;
+                }
+            });
+
+            fetch("http://localhost:5000/sum", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ matrix1, matrix2 })
+            })
+            .then(response => response.json())
+            .then(data => {
+                const resultDiv = document.getElementById("result");
+                resultDiv.innerHTML = "";
+                data.result.forEach(row => {
+                    const rowDiv = document.createElement("div");
+                    row.forEach(val => {
+                        const span = document.createElement("span");
+                        span.textContent = val;
+                        span.style.margin = "5px";
+                        rowDiv.appendChild(span);
+                    });
+                    resultDiv.appendChild(rowDiv);
+                });
+            });
+        }
+    </script>
+</body>
+</html>
