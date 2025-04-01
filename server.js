@@ -1,5 +1,10 @@
-const express = require('express'); // Importa Express para crear el servidor web
-const cors = require('cors'); // Importa CORS para permitir peticiones desde el frontend
+import express from 'express';
+import path from 'path';
+import cors from 'cors';
+import { fileURLToPath } from 'url';
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
 const app = express(); // Inicializa la aplicación Express
 app.use(express.json()); // Middleware para procesar solicitudes con datos en formato JSON
@@ -21,6 +26,9 @@ app.post('/sum', (req, res) => {
     res.json({ result });
 });
 
+app.get('/', (req, res) => {
+    res.sendFile(path.join(__dirname, 'public', 'index.html'));  // Asegúrate de tener tu HTML en la carpeta 'public'
+});
 const PORT = 5000; // Define el puerto en el que se ejecutará el servidor
 app.listen(PORT, () => {
     console.log(`Servidor corriendo en http://localhost:${PORT}`); // Mensaje en consola al iniciar el servidor
